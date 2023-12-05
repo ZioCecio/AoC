@@ -3,7 +3,7 @@ file = open('input.txt')
 seeds = []
 seeds_ranges = list(map(lambda n : int(n), file.readline().split(':')[1].strip().split(' ')))
 for i in range(0, len(seeds_ranges), 2):
-    seeds.append([seeds_ranges[i], seeds_ranges[i] + seeds_ranges[i + 1], False])
+    seeds.append([seeds_ranges[i], seeds_ranges[i + 1], False])
 
 file.readline()
 
@@ -60,10 +60,9 @@ def split_interval(interval_to_split, interval_target):
     third = [target_end + 1, to_split_end - target_end]
     return [first, second, third]
 
-#print(split_interval([1, 10], [4, 4]))
-
 for map_key in maps:
     transforms = []
+
     for ranges in maps[map_key]:
         [dest_start, source_start, length] = ranges
         source_end = source_start + length - 1
@@ -72,7 +71,6 @@ for map_key in maps:
             target = [source_start, length]
 
             [first, second, third] = split_interval(seed, target)
-            
             if second != None:
                 if first != None:
                     seeds.append([first[0], first[1], False])
@@ -82,8 +80,6 @@ for map_key in maps:
                 
                 transforms.append([dest_start + (second[0] - source_start), second[1], False])
                 seed[2] = True
-            
-            
 
         seeds = list(filter(lambda s : s[2] != None and not s[2], seeds))
 
@@ -94,4 +90,3 @@ for x in seeds:
     ans = min(ans, x[0])
 
 print(ans)
-print(seeds)
