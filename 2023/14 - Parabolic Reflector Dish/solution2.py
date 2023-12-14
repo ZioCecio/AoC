@@ -32,8 +32,6 @@ def rotate_matrix(matrix):
             r = j
             c = len(matrix) - i - 1
 
-            #print(f'(i, j) = ({i}, {j}); (r, c) = ({r}, {c})')
-
             new_matrix[r][c] = matrix[i][j]
 
     return new_matrix
@@ -44,36 +42,61 @@ def get_hash(matrix):
         state += ''.join(x)
     return sha1(state.encode()).hexdigest()
 
+def get_score(mat):
+    score = 0
+    for i in range(len(mat)):
+        for j in range(len(mat[0])):
+            cell = mat[i][j]
+
+            if cell == 'O':
+                score += (len(mat) - i)
+
+    return score
+
 matrix = []
 for line in file.readlines():
     line = line.strip()
     matrix.append([c for c in line])
 
 cycle_count = 1000000000
+
+end_id = None
 saved_states = {}
 for i in range(cycle_count):
-    #print(i + 1)
+    force_exit = False
+
     for _ in range(4):
         matrix = tilt_matrix(matrix)
         matrix = rotate_matrix(matrix)
 
     id = get_hash(matrix)
+
     if id in saved_states:
-        print(len(saved_states))
+        start_cycle = saved_states[id]
+        cycle_length = len(saved_states) - start_cycle + 1
+        cycle_count -= start_cycle
+
+        end_all = start_cycle + (cycle_count % cycle_length)
+
+        for key in saved_states:
+            if saved_states[key] == end_all:
+                end_id = key
+                force_exit = True
+                break
+
         break
 
-    saved_states[id] = 0
-    #for x in matrix:
-    #    print(x)
-    
-    #print()
+    if force_exit:
+        break
 
-ans = 0
-for i in range(len(matrix)):
-    for j in range(len(matrix[0])):
-        cell = matrix[i][j]
+    saved_states[id] = len(saved_states) + 1
 
-        if cell == 'O':
-            ans += (len(matrix) - i)
+while id != end_id:
+    for _ in range(4):
+        matrix = tilt_matrix(matrix)
+        matrix = rotate_matrix(matrix)
 
+    id = get_hash(matrix)
+
+ans = get_score(matrix)
 print(ans)
